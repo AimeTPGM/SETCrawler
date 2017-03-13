@@ -15,7 +15,12 @@ app.get('/scrape', function(req, res){
 	    var symbol, name, allAsset;
 	    var json = { symbol : "", 
 	    			name : "", 
-	    			allAsset : ""
+	    			info : 
+		    			{
+		    				allAsset: [ "", "", "", "" ],
+		    				allDebt: [ "", "", "", "" ],
+		    				personalTotal: [ "", "", "", "" ]
+		    			}
 					};
 		$('#maincontent').each(function(i, element){
 	      var a = $(this).prev();
@@ -24,13 +29,21 @@ app.get('/scrape', function(req, res){
 
 	    $('#maincontent').filter(function(){
 	        var data = $(this);
-	        console.log('---------------- this is filter ----------------')
-			console.log(data.children().children().children().children().first().text());
-			
-	        
-	        // console.log(data.children().children().next().children().children().text());
+			// console.log(data.children().children().children().children().first().text());
 	        symbol = data.children().children().children().children().first().text();
+	        var allValue = data.children().children().children().children();
+	        
+	        var allAsset = $(allValue).eq(6).children().children().eq(3).children();
+	        var allAssetFourYearAgo = $(allAsset).eq(1).text();
+	        var allAssetThreeYearAgo = $(allAsset).eq(2).text();
+	        var allAssetTwoYearAgo = $(allAsset).eq(3).text();
+	        var allAssetOneYearAgo = $(allAsset).eq(4).text();
 	        json.symbol = symbol;
+	        json.info.allAsset[0] = allAssetFourYearAgo;
+	        json.info.allAsset[1] = allAssetThreeYearAgo;
+	        json.info.allAsset[2] = allAssetTwoYearAgo;
+	        json.info.allAsset[3] = allAssetOneYearAgo;
+
 	    })
 	}
 
