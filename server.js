@@ -17,9 +17,10 @@ app.get('/scrape', function(req, res){
 	    			name : "", 
 	    			info : 
 		    			{
-		    				allAsset: [ "", "", "", "" ],
-		    				allDebt: [ "", "", "", "" ],
-		    				personalTotal: [ "", "", "", "" ]
+		    				totalAsset: [ "", "", "", "" ],
+		    				totalDebt: [ "", "", "", "" ],
+		    				partOfStakeholders: [ "", "", "", "" ],
+		    				marketCap: [ "", "", "", "" ]
 		    			}
 					};
 		$('#maincontent').each(function(i, element){
@@ -30,19 +31,40 @@ app.get('/scrape', function(req, res){
 	    $('#maincontent').filter(function(){
 	        var data = $(this);
 			// console.log(data.children().children().children().children().first().text());
-	        symbol = data.children().children().children().children().first().text();
+	        var fullname = data.children().children().children().children().first().text();
+	        var symbol = fullname;
+	        json.symbol = symbol;
+	        json.name = fullname.replace(/\s*\s\w\s:\s?\s/,'');
 	        var allValue = data.children().children().children().children();
 	        
 	        var allAsset = $(allValue).eq(6).children().children().eq(3).children();
-	        var allAssetFourYearAgo = $(allAsset).eq(1).text();
-	        var allAssetThreeYearAgo = $(allAsset).eq(2).text();
-	        var allAssetTwoYearAgo = $(allAsset).eq(3).text();
-	        var allAssetOneYearAgo = $(allAsset).eq(4).text();
-	        json.symbol = symbol;
-	        json.info.allAsset[0] = allAssetFourYearAgo;
-	        json.info.allAsset[1] = allAssetThreeYearAgo;
-	        json.info.allAsset[2] = allAssetTwoYearAgo;
-	        json.info.allAsset[3] = allAssetOneYearAgo;
+	        json.info.totalAsset = [
+		        $(allAsset).eq(1).text().replace(/\s\s/,''),
+		        $(allAsset).eq(2).text().replace(/\s\s/,''),
+		        $(allAsset).eq(3).text().replace(/\s\s/,''),
+		        $(allAsset).eq(4).text().replace(/\s\s/,'')
+	        ];
+	        
+	        var allDebt = $(allValue).eq(6).children().children().eq(4).children();
+	       	json.info.totalDebt = [
+		       	$(allDebt).eq(1).text().replace(/\s\s/,''), 
+		       	$(allDebt).eq(2).text().replace(/\s\s/,''),
+		       	$(allDebt).eq(3).text().replace(/\s\s/,''),
+		       	$(allDebt).eq(4).text().replace(/\s\s/,'')
+	       	];
+
+	       	var allPartOfStakeholders = $(allValue).eq(6).children().children().eq(5).children();
+	       	json.info.partOfStakeholders = [
+	       	   	$(allPartOfStakeholders).eq(1).text().replace(/\s\s/,''), 
+		       	$(allPartOfStakeholders).eq(2).text().replace(/\s\s/,''),
+		       	$(allPartOfStakeholders).eq(3).text().replace(/\s\s/,''),
+		       	$(allPartOfStakeholders).eq(4).text().replace(/\s\s/,'')
+	       	];
+
+	       	var allMarketCap = $(allValue).eq(6).children().eq(5).text();
+	       	console.log(allMarketCap);
+
+
 
 	    })
 	}
