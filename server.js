@@ -4,15 +4,59 @@ var request = require('request');
 var cheerio = require('cheerio');
 var app     = express();
 
+app.get('/symbolItem', function(req, res){
+	url = 'https://www.set.or.th/set/commonslookup.do?language=th&country=TH';
+	request(url, function(error, response, html){
+		if(!error){
+			var $ = cheerio.load(html);
+			var json = { symbol: "",
+						fullname: "",
+						market: ""
+					};
+			var list = [];
+
+		$('table').filter(function(){
+	        var data = $(this);
+			
+	       	var test = data.text();
+	       	console.log('here')
+	       
+	       	for (var i = 1; i < data.children().length; i++) {
+	       		var json = { symbol: data.children().eq(i).children().eq(0).text(),
+						fullname: data.children().eq(i).children().eq(1).text(),
+						market: data.children().eq(i).children().eq(2).text()
+					};
+	       		list.push(json);
+	       	};
+
+	    })
+
+	    fs.writeFile('output.json', JSON.stringify(list, null, 4), function(err){
+
+
+		    console.log('File successfully written! - Check your project directory for the output.json file');
+
+		})
+
+
+
+		}
+	});
+
+	
+
+	// Finally, we'll just send out a message to the browser reminding you that this app does not have a UI.
+	res.send('Check your console!')
+});
+
+
 app.get('/scrape', function(req, res){
 
 	url = 'https://www.set.or.th/set/companyhighlight.do?symbol=A&ssoPageId=5&language=th&country=TH';
 
 	request(url, function(error, response, html){
 	    if(!error){
-	        var $ = cheerio.load(html);
-
-	    var symbol, name, allAsset;
+	    var $ = cheerio.load(html);
 	    var json = { symbol : "", 
 	    			name : "", 
 	    			info : 
@@ -23,11 +67,7 @@ app.get('/scrape', function(req, res){
 		    				marketCap: [ "", "", "", "" ]
 		    			}
 					};
-		$('#maincontent').each(function(i, element){
-	      var a = $(this).prev();
-	      // console.log(a.text());
-	    });
-
+		
 	    $('#maincontent').filter(function(){
 	        var data = $(this);
 			// console.log(data.children().children().children().children().first().text());
@@ -61,12 +101,20 @@ app.get('/scrape', function(req, res){
 		       	$(allPartOfStakeholders).eq(4).text().replace(/\s\s/,'')
 	       	];
 
-	       	var allMarketCap = $(allValue).eq(6).children().eq(5).text();
-	       	console.log(allMarketCap);
-
-
+	       	var test = data.text();
+	       	console.log(test);
 
 	    })
+
+		$('table').filter(function(){
+	        var data = $(this);
+			
+	       	var test = data.text();
+	       	console.log(test);
+
+	    })
+
+		
 	}
 
 	// To write to the system we will use the built in 'fs' library.
