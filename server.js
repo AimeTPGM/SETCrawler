@@ -5,43 +5,79 @@ var cheerio = require('cheerio');
 var app     = express();
 
 app.get('/symbolItem', function(req, res){
-	url = 'https://www.set.or.th/set/commonslookup.do?language=th&country=TH';
-	request(url, function(error, response, html){
-		if(!error){
-			var $ = cheerio.load(html);
-			var json = { symbol: "",
-						fullname: "",
-						market: ""
-					};
-			var list = [];
+	
+	var prefixList = [];
+	var first = "A", last = "Z";
+	var list = [];
+	for (var i = first.charCodeAt(0); i <= last.charCodeAt(0); i++) {
+		prefixList.push(String.fromCharCode(i));
+	};
+	prefixList.push("NUMBER");
 
-		$('table').filter(function(){
-	        var data = $(this);
-			
-	       	var test = data.text();
-	       	console.log('here')
-	       
-	       	for (var i = 1; i < data.children().length; i++) {
-	       		var json = { symbol: data.children().eq(i).children().eq(0).text(),
-						fullname: data.children().eq(i).children().eq(1).text(),
-						market: data.children().eq(i).children().eq(2).text()
-					};
-	       		list.push(json);
-	       	};
+	for (var j = 0; j < prefixList.length; j++) {
+		console.log(prefixList[j])
+		url = 'https://www.set.or.th/set/commonslookup.do?language=th&country=TH&prefix='+prefixList[j];
+		request(url, function(error, response, html){
+			if(!error){
+				var $ = cheerio.load(html);
+				$('table').filter(function(){
+					var data = $(this);
+					for (var k = 1; k < data.children().length; k++) {
 
-	    })
+			       		var json = { symbol: data.children().eq(k).children().eq(0).text(),
+								fullname: data.children().eq(k).children().eq(1).text(),
+								market: data.children().eq(k).children().eq(2).text()
+							};
+						fs.appendFile('output.json', JSON.stringify(json, null, 4), function(err){
+							
+						})
+			       	};
 
-	    fs.writeFile('output.json', JSON.stringify(list, null, 4), function(err){
-
-
-		    console.log('File successfully written! - Check your project directory for the output.json file');
-
+				});
+			}
 		})
+	};
+
+	console.log("done!")
+	
+
+
+	// url = 'https://www.set.or.th/set/commonslookup.do?language=th&country=TH&prefix=';
+	// request(url, function(error, response, html){
+	// 	if(!error){
+	// 		var $ = cheerio.load(html);
+	// 		var json = { symbol: "",
+	// 					fullname: "",
+	// 					market: ""
+	// 				};
+	// 		var list = [];
+
+	// 	$('table').filter(function(){
+	//         var data = $(this);
+			
+	      
+	       
+	//        	for (var i = 1; i < data.children().length; i++) {
+	//        		var json = { symbol: data.children().eq(i).children().eq(0).text(),
+	// 					fullname: data.children().eq(i).children().eq(1).text(),
+	// 					market: data.children().eq(i).children().eq(2).text()
+	// 				};
+	//        		list.push(json);
+	//        	};
+
+	//     })
+
+	//     fs.writeFile('output.json', JSON.stringify(list, null, 4), function(err){
+
+
+	// 	    console.log('File successfully written! - Check your project directory for the output.json file');
+
+	// 	})
 
 
 
-		}
-	});
+	// 	}
+	// });
 
 	
 
