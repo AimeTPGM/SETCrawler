@@ -9,6 +9,7 @@ app.get('/symbolItem', function(req, res){
 	var prefixList = [];
 	var first = "A", last = "Z";
 	var list = [];
+	var readFile;
 	for (var i = first.charCodeAt(0); i <= last.charCodeAt(0); i++) {
 		prefixList.push(String.fromCharCode(i));
 	};
@@ -32,8 +33,8 @@ app.get('/symbolItem', function(req, res){
 								fullname: data.children().eq(k).children().eq(1).text(),
 								market: data.children().eq(k).children().eq(2).text()
 							};
-						
-						fs.appendFile('output.json', JSON.stringify(json, null, 4), function(err){
+						list.push(json);
+						fs.writeFile('output.json', JSON.stringify(list), function(err){
 							
 						})
 					
