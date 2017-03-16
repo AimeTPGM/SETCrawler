@@ -2,6 +2,7 @@ var express = require('express');
 var fs = require('fs');
 var request = require('request');
 var cheerio = require('cheerio');
+var async = require('async');
 var app     = express();
 
 app.get('/symbol', function(req, res){
@@ -67,20 +68,44 @@ app.get('/info', function(req,res){
 	var outputFile = fs.readFileSync('output.json');
 	var json = JSON.parse(outputFile);
 	var data = json.data;
-	for (var i = 0; i < data.length; i++) {
+	var list = json.data;
+	// for (var i = 0; i < data.length; i++) {
+	// 	url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i]+'&ssoPageId=5&language=th&country=TH'
+	// 	request(url, function(error, response, html){
+	// 		if(!error){
+	// 			var $ = cheerio.load(html);
+	// 			$('table').filter(function(){
+	// 				var scrape = $(this);
+	// 				var base = scrape.children().children().eq(3).children();
+	// 				console.log(i)
+	// 				// data[i].info.totalAsset = [base.eq(1).text(),base.eq(2).text(),base.eq(3).text(),base.eq(4).text()];
+	// 				// fs.writeFile('output.json', JSON.stringify(data));
+	// 			})
+	// 		}
+	// 	})
+
+	// };
+
+	
+
+	var getInfo = function(i){
+		// console.log(i)
 		url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i]+'&ssoPageId=5&language=th&country=TH'
 		request(url, function(error, response, html){
 			if(!error){
-				var $ = cheerio.load(html);
-				$('table').filter(function(){
-					var scrape = $(this);
-					var base = scrape.children().children().eq(3).children();
-					data[i].info.totalAsset = [base.eq(1).text(),base.eq(2).text(),base.eq(3).text(),base.eq(4).text()];
-					fs.writeFile('output.json', JSON.stringify(data));
-				})
+				console.log(i)
+				console.log(data[i])
 			}
 		})
 
+	}
+
+	var q = async.queue(function (i) {
+			getInfo(i);
+	}, 726);
+	for (var i = 0; i < data.length; i++) {
+			// console.log(i)
+			q.push(i);
 	};
 
 	res.send();
