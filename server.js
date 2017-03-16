@@ -69,32 +69,47 @@ app.get('/info', function(req,res){
 	var json = JSON.parse(outputFile);
 	var data = json.data;
 	var list = json.data;
-	// for (var i = 0; i < data.length; i++) {
-	// 	url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i]+'&ssoPageId=5&language=th&country=TH'
-	// 	request(url, function(error, response, html){
-	// 		if(!error){
-	// 			var $ = cheerio.load(html);
-	// 			$('table').filter(function(){
-	// 				var scrape = $(this);
-	// 				var base = scrape.children().children().eq(3).children();
-	// 				console.log(i)
-	// 				// data[i].info.totalAsset = [base.eq(1).text(),base.eq(2).text(),base.eq(3).text(),base.eq(4).text()];
-	// 				// fs.writeFile('output.json', JSON.stringify(data));
-	// 			})
-	// 		}
-	// 	})
-
-	// };
-
 	
+	var t = function(){
+		url = 'https://www.set.or.th/set/companyhighlight.do?symbol=GIFT&ssoPageId=5&language=th&country=TH'
+		request(url, function(error, response, html){
+			if(!error){
+				var $ = cheerio.load(html);
+				$('table').filter(function(){
+					var scrape = $(this);
+					var base = scrape.children().children().eq(3).children();
+					console.log(base.text());
+					for (var j = 1; j < 5; j++) {
+						console.log(base.eq(j).text());
+					};
+
+				})
+			}
+		})
+	}
+	// t();
 
 	var getInfo = function(i){
 		// console.log(i)
-		url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i]+'&ssoPageId=5&language=th&country=TH'
+		url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i].symbol+'&ssoPageId=5&language=th&country=TH'
 		request(url, function(error, response, html){
 			if(!error){
 				console.log(i)
-				console.log(data[i])
+				console.log(data[i].symbol)
+				var $ = cheerio.load(html);
+				$('table').filter(function(){
+					var scrape = $(this);
+					var base = scrape.children().children().eq(3).children();
+					var k = 0;
+					for (var j = 1; j < 5; j++) {
+						data[i].info.totalAsset[k] = base.eq(j).text();
+						k++;
+						
+					};
+					console.log(data[i])
+				})
+				
+
 			}
 		})
 
@@ -107,7 +122,7 @@ app.get('/info', function(req,res){
 			// console.log(i)
 			q.push(i);
 	};
-
+	console.log('done');
 	res.send();
 })
 
