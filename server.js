@@ -4,18 +4,19 @@ var request = require('request');
 var cheerio = require('cheerio');
 var app     = express();
 
-app.get('/symbolItem', function(req, res){
+app.get('/symbol', function(req, res){
 	
 	var prefixList = [];
 	var first = "A", last = "Z";
 	var list = [];
-	var readFile;
+	var companyList = [];
+	var count =0;
 	for (var i = first.charCodeAt(0); i <= last.charCodeAt(0); i++) {
 		prefixList.push(String.fromCharCode(i));
 	};
 	prefixList.push("NUMBER");
 	console.log('removing content from output.json')
-		fs.writeFile('output.json', '', function(){
+	fs.writeFile('output.json', '', function(){
 	})
 	console.log('removed!')
 
@@ -28,15 +29,28 @@ app.get('/symbolItem', function(req, res){
 				$('table').filter(function(){
 					var data = $(this);
 					for (var k = 1; k < data.children().length; k++) {
-
-			       		var json = { symbol: data.children().eq(k).children().eq(0).text(),
-								fullname: data.children().eq(k).children().eq(1).text(),
-								market: data.children().eq(k).children().eq(2).text()
-							};
+						var json = {
+							"symbol" : "",
+							"fullname" : "",
+							"market" : "",
+							"info" : 
+				    			{
+				    				"totalAsset": [ "", "", "", "" ],
+				    				"totalDebt": [ "", "", "", "" ],
+				    				"partOfStakeholders": [ "", "", "", "" ],
+				    				"marketCap": [ "", "", "", "" ]
+				    			}
+						}
+						json.symbol = data.children().eq(k).children().eq(0).text();
+						json.fullname = data.children().eq(k).children().eq(1).text();
+						json.market = data.children().eq(k).children().eq(2).text();
+						companyList.push(json.symbol);
 						list.push(json);
-						fs.writeFile('output.json', JSON.stringify(list), function(err){
-							
-						})
+						var toWriteFile = {
+							"data" : list
+						}
+			       		fs.writeFile('output.json', JSON.stringify(toWriteFile));
+						
 					
 			       	};
 
@@ -49,6 +63,36 @@ app.get('/symbolItem', function(req, res){
 	res.send('done!')
 });
 
+app.get('/info', function(req,res){
+	var outputFile = fs.readFileSync('output.json');
+	var json = JSON.parse(outputFile);
+	var data = json.data;
+	for (var i = 0; i < data.length; i++) {
+		url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i]+'&ssoPageId=5&language=th&country=TH'
+		request(url, function(error, response, html){
+			if(!error){
+				var $ = cheerio.load(html);
+				$('table').filter(function(){
+					var scrape = $(this);
+					var base = scrape.children().children().eq(3).children();
+					data[i].info.totalAsset = [base.eq(1).text(),base.eq(2).text(),base.eq(3).text(),base.eq(4).text()];
+					fs.writeFile('output.json', JSON.stringify(data));
+				})
+			}
+		})
+
+	};
+
+	res.send();
+})
+
+app.get('/read', function(req, res){
+	var outputFile = fs.readFileSync('output.json');
+	var outputTOJSON = JSON.parse(outputFile);
+	console.log(outputTOJSON)
+	res.send();
+
+})
 
 app.get('/scrape', function(req, res){
 
@@ -57,75 +101,27 @@ app.get('/scrape', function(req, res){
 	request(url, function(error, response, html){
 	    if(!error){
 	    var $ = cheerio.load(html);
-	    var json = { symbol : "", 
-	    			name : "", 
-	    			info : 
-		    			{
-		    				totalAsset: [ "", "", "", "" ],
-		    				totalDebt: [ "", "", "", "" ],
-		    				partOfStakeholders: [ "", "", "", "" ],
-		    				marketCap: [ "", "", "", "" ]
-		    			}
-					};
-		
-	    $('#maincontent').filter(function(){
-	        var data = $(this);
-			// console.log(data.children().children().children().children().first().text());
-	        var fullname = data.children().children().children().children().first().text();
-	        var symbol = fullname;
-	        json.symbol = symbol;
-	        json.name = fullname.replace(/\s*\s\w\s:\s?\s/,'');
-	        var allValue = data.children().children().children().children();
-	        
-	        var allAsset = $(allValue).eq(6).children().children().eq(3).children();
-	        json.info.totalAsset = [
-		        $(allAsset).eq(1).text().replace(/\s\s/,''),
-		        $(allAsset).eq(2).text().replace(/\s\s/,''),
-		        $(allAsset).eq(3).text().replace(/\s\s/,''),
-		        $(allAsset).eq(4).text().replace(/\s\s/,'')
-	        ];
-	        
-	        var allDebt = $(allValue).eq(6).children().children().eq(4).children();
-	       	json.info.totalDebt = [
-		       	$(allDebt).eq(1).text().replace(/\s\s/,''), 
-		       	$(allDebt).eq(2).text().replace(/\s\s/,''),
-		       	$(allDebt).eq(3).text().replace(/\s\s/,''),
-		       	$(allDebt).eq(4).text().replace(/\s\s/,'')
-	       	];
-
-	       	var allPartOfStakeholders = $(allValue).eq(6).children().children().eq(5).children();
-	       	json.info.partOfStakeholders = [
-	       	   	$(allPartOfStakeholders).eq(1).text().replace(/\s\s/,''), 
-		       	$(allPartOfStakeholders).eq(2).text().replace(/\s\s/,''),
-		       	$(allPartOfStakeholders).eq(3).text().replace(/\s\s/,''),
-		       	$(allPartOfStakeholders).eq(4).text().replace(/\s\s/,'')
-	       	];
-
-	       	var test = data.text();
-	       	console.log(test);
-
-	    })
-
 		$('table').filter(function(){
 	        var data = $(this);
-			
-	       	var test = data.text();
-	       	console.log(test);
+	        for (var i = 0; i < data.children().children().length; i++) {
+	        	console.log(i)
+	        	console.log(data.children().children().eq(i).text());
+	        };
+	        var base = data.children().children().eq(3).children();
+	        console.log('totalAsset')
+	        console.log(base.eq(0).text())
+	       	console.log(base.eq(1).text())
+	       	console.log(base.eq(2).text())
+	       	console.log(base.eq(3).text())
+	       	
 
 	    })
 
 		
 	}
-	fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-
-	    console.log('File successfully written! - Check your project directory for the output.json file');
-
-	})
-
-	// Finally, we'll just send out a message to the browser reminding you that this app does not have a UI.
 	res.send('Check your console!')
 
-	    }) ;
+	}) ;
 })
 
 app.listen('8081')
