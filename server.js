@@ -45,12 +45,60 @@ app.get('/symbol', function(req, res){
 						json.symbol = data.children().eq(k).children().eq(0).text();
 						json.fullname = data.children().eq(k).children().eq(1).text();
 						json.market = data.children().eq(k).children().eq(2).text();
-						companyList.push(json.symbol);
-						list.push(json);
-						var toWriteFile = {
-							"data" : list
+						if(!companyList.includes(json.symbol)){
+							companyList.push(json.symbol);
 						}
-			       		fs.writeFile('output.json', JSON.stringify(toWriteFile));
+						// list.push(json);
+
+						var getInfo = function(){
+							
+								url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+json.symbol+'&ssoPageId=5&language=th&country=TH'
+								request(url, function(error, response, html){
+									if(!error){
+										
+										var $ = cheerio.load(html);
+										$('table').filter(function(){
+											var scrape = $(this);
+											var base = scrape.children().children().eq(3).children();
+											var k = 0;
+											for (var j = 1; j < 5; j++) {
+												json.info.totalAsset[k] = base.eq(j).text();
+												k++;
+											};
+											if(list.includes(json)){
+												console.log('duplicated')
+											}
+											else{
+												console.log(json.symbol)
+												list.push(json)
+												var toWriteFile = {
+														"data" : list
+													}
+										       	fs.writeFile('output.json', JSON.stringify(toWriteFile));
+									       }
+										})
+										
+
+									}
+								})
+
+							
+							
+
+						}		
+						var q = async.queue(function () {
+									getInfo();
+						}, 5);
+						q.push();
+							// for (var i = 0; i < data.length; i++) {
+							// 		// console.log(i)
+							// 		q.push(i);
+							// };				
+
+
+
+
+						
 						
 					
 			       	};
@@ -69,25 +117,6 @@ app.get('/info', function(req,res){
 	var json = JSON.parse(outputFile);
 	var data = json.data;
 	var list = json.data;
-	
-	var t = function(){
-		url = 'https://www.set.or.th/set/companyhighlight.do?symbol=GIFT&ssoPageId=5&language=th&country=TH'
-		request(url, function(error, response, html){
-			if(!error){
-				var $ = cheerio.load(html);
-				$('table').filter(function(){
-					var scrape = $(this);
-					var base = scrape.children().children().eq(3).children();
-					console.log(base.text());
-					for (var j = 1; j < 5; j++) {
-						console.log(base.eq(j).text());
-					};
-
-				})
-			}
-		})
-	}
-	// t();
 
 	var getInfo = function(i){
 		// console.log(i)
@@ -106,7 +135,6 @@ app.get('/info', function(req,res){
 						k++;
 						
 					};
-					console.log(data[i])
 				})
 				
 
