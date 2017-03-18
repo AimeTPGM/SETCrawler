@@ -40,6 +40,7 @@ app.get('/symbol', function(req, res){
 						var json = {
 							"symbol" : "",
 							"fullname" : "",
+							// "link" : "",
 							"market" : "",
 							"info" : 
 				    			{
@@ -52,6 +53,7 @@ app.get('/symbol', function(req, res){
 						json.symbol = data.children().eq(k).children().eq(0).text();
 						json.fullname = data.children().eq(k).children().eq(1).text();
 						json.market = data.children().eq(k).children().eq(2).text();
+						// json.link = "https://www.set.or.th/set/companyhighlight.do?symbol="+json.symbol+"&ssoPageId=5&language=th&country=TH";
 						if(!companyList.includes(json.symbol)){
 							companyList.push(json.symbol);
 						}
@@ -67,12 +69,20 @@ app.get('/symbol', function(req, res){
 										var $ = cheerio.load(html);
 										$('table').filter(function(){
 											var scrape = $(this);
-											var base = scrape.children().children().eq(3).children();
+											var baseTotalAsset = scrape.children().children().eq(3).children();
+											var baseTotalDebt = scrape.children().children().eq(4).children();
+											var basePOSH = scrape.children().children().eq(5).children();
+											var baseMarketCap = scrape.children().children().eq(6).children();
 											var k = 0;
 											for (var j = 1; j < 5; j++) {
-												var t = base.eq(j).text();
-
-												json.info.totalAsset[k] = t;
+												var tta = baseTotalAsset.eq(j).text().replace(/\s\s/, '');
+												var ttd = baseTotalDebt.eq(j).text().replace(/\s\s/, '');;
+												var posh = basePOSH.eq(j).text().replace(/\s\s/, '');;
+												var mc = baseMarketCap.eq(j).text().replace(/\s\s/, '');;
+												json.info.totalAsset[k] = tta;
+												json.info.totalDebt[k] = ttd;
+												json.info.partOfStakeholders[k] = posh;
+												json.info.marketCap[k] = mc;
 												k++;
 											};
 											
