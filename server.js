@@ -95,7 +95,7 @@ app.get('/symbol', function(req, res){
 											var baseTotalIncome = scrape.children().children().eq(7).children();
 											var baseTotalProfit = scrape.children().children().eq(8).children();
 											var basePercentProfilt = scrape.children().children().eq(13).children();
-											var baseROE = scrape.children().children().eq(14).children();
+											var baseROE = scrape.children().children().eq(12).children();
 											var basePaidShare = scrape.children().children().eq(6).children();
 											var k = 0;
 											for (var j = 1; j < 5; j++) {
@@ -162,9 +162,7 @@ app.get('/symbol', function(req, res){
 			       	var p = async.queue(function (k) {
 
 							getAll(k);
-							if(k == data.children().length-1){
-									console.log("======= done! ========")
-							}				
+										
 					}, data.children().length-1);
 
 					for (var k = 1; k < data.children().length; k++) {
@@ -198,6 +196,11 @@ app.get('/scrape', function(req, res){
 		$('table').filter(function(){
 	        var data = $(this);
 	        var base = data.children().children();
+	        var t = data.children();
+	        // console.log(data.find('caption').length)
+	        // console.log(data.find('thead').length)
+	        // console.log(data.find('tbody').length)
+	        // console.log(data.find('tr').length)
 	        for (var i = 0; i < data.children().children().length; i++) {
 	        	console.log(i)
 	        	console.log(data.children().children().eq(i).text())
