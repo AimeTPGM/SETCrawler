@@ -9,8 +9,8 @@ var app     = express();
 1. ดู สินทรัพทั้งหมด (totalAsset) เทียบกับ หนี้สินทั้งหมด (totalDebt) กับส่วนของเจ้าของ (posh) 
 1.1 หนี้ < ส่วนของเจ้าของ = เสี่ยงน้อย
 1.2 หนี้ > ส่วนของเจ้าของ ให้ดูข้อ /
-2. ดู creditor กับ debt 
-2.1 creditor มาก โอเค มีอำนาจต่อรอง
+2. ดู creditor กับ debt => ต้องดูเอง format ไม่เหมือนกัน
+2.1 creditor มาก โอเค มีอำนาจต่อรอง 
 2.2 debt มาก ไม่โอเค
 3. ดู percent profit มากกว่า 10 คือกำไรดี
 4. ดู paidShare 
@@ -59,8 +59,8 @@ app.get('/symbol', function(req, res){
 							"symbol" : "",
 							"fullname" : "",
 							"market" : "",
-							"creditor": "",
-							"debt": "",
+							// "creditor": "",
+							// "debt": "",
 							"info" : 
 				    			{
 				    				"totalAsset": [ "", "", "", "" ],
@@ -111,16 +111,38 @@ app.get('/symbol', function(req, res){
 												json.info.totalAsset[k] = tta;
 												json.info.totalDebt[k] = ttd;
 												json.info.partOfStakeholders[k] = posh;
-												json.info.marketCap[k] = mc;
+												// json.info.marketCap[k] = mc;
+												json.info.totalIncome[k] = tti;
+												json.info.totalProfit[k] = ttp;
+												json.info.percentProfit[k] = pp;
+												json.info.ROE[k] = roe;
+												json.info.paidShare[k] = ps;
 												k++;
 											};
 
-											var getDebtAndCreditor = function(){
-												url = 'https://www.set.or.th/set/companyfinance.do?type=balance&symbol='+json.symbol+'&language=th&country=TH';
-												request(url, function(error, response, html){
+											// var getDebtAndCreditor = function(){
+											// 	url = 'https://www.set.or.th/set/companyfinance.do?type=balance&symbol='+json.symbol+'&language=th&country=TH';
+											// 	request(url, function(error, response, html){
+											// 		if(!error){
+											// 		    var $ = cheerio.load(html);
+											// 			$('table.table.table-hover.table-info').filter(function(){
+											// 		        var data = $(this);
+											// 		        var base = data.children().children();
+											// 		        console.log(data.text());
+											// 		        for (var i = 0; i < data.children().children().length; i++) {
+											// 		        	console.log(i)
+											// 		        	console.log(data.children().children().eq(i).text())
+											// 		        };
+											// 		        json.creditor = base.eq(76).text();
+											// 		        var debtCal;
+											// 		        var debt1 = base.eq(82).text();
+											// 		        var debt2 = base.eq(85).text();
+											// 		        var debt3 = base.eq(115).text();
 
-												})
-											} // getDebtAndCreditor
+											// 		    })
+											// 		}
+											// 	})
+											// } // getDebtAndCreditor
 											
 											list.push(json)
 											var toWriteFile = {
