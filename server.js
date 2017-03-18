@@ -12,6 +12,7 @@ app.get('/symbol', function(req, res){
 	var list = [];
 	var companyList = [];
 	var count =0;
+	var anotherList = [];
 	for (var i = first.charCodeAt(0); i <= last.charCodeAt(0); i++) {
 		prefixList.push(String.fromCharCode(i));
 	};
@@ -29,7 +30,13 @@ app.get('/symbol', function(req, res){
 				var $ = cheerio.load(html);
 				$('table').filter(function(){
 					var data = $(this);
-					for (var k = 1; k < data.children().length; k++) {
+
+					
+					
+
+
+
+					var getAll = function (k){
 						var json = {
 							"symbol" : "",
 							"fullname" : "",
@@ -48,34 +55,35 @@ app.get('/symbol', function(req, res){
 						if(!companyList.includes(json.symbol)){
 							companyList.push(json.symbol);
 						}
-						// list.push(json);
+						
 
 						var getInfo = function(){
 							
 								url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+json.symbol+'&ssoPageId=5&language=th&country=TH'
+								
 								request(url, function(error, response, html){
 									if(!error){
-										
+										console.log(json.symbol)
 										var $ = cheerio.load(html);
 										$('table').filter(function(){
 											var scrape = $(this);
 											var base = scrape.children().children().eq(3).children();
 											var k = 0;
 											for (var j = 1; j < 5; j++) {
-												json.info.totalAsset[k] = base.eq(j).text();
+												var t = base.eq(j).text();
+
+												json.info.totalAsset[k] = t;
 												k++;
 											};
-											if(list.includes(json)){
-												console.log('duplicated')
-											}
-											else{
-												console.log(json.symbol)
-												list.push(json)
-												var toWriteFile = {
-														"data" : list
-													}
-										       	fs.writeFile('output.json', JSON.stringify(toWriteFile));
-									       }
+											
+											
+											
+											list.push(json)
+											var toWriteFile = {
+													"data" : list
+												}
+										    fs.writeFile('output.json', JSON.stringify(toWriteFile));
+									       
 										})
 										
 
@@ -85,23 +93,25 @@ app.get('/symbol', function(req, res){
 							
 							
 
-						}		
+						} //getInfo		
 						var q = async.queue(function () {
-									getInfo();
-						}, 5);
+
+							getInfo();
+									
+						}, 726);
 						q.push();
-							// for (var i = 0; i < data.length; i++) {
-							// 		// console.log(i)
-							// 		q.push(i);
-							// };				
+			       	} // getAll
 
 
+			       	var p = async.queue(function (k) {
 
+							getAll(k);
+									
+					}, data.children().length-1);
 
-						
-						
-					
-			       	};
+					for (var k = 1; k < data.children().length; k++) {
+						p.push(k)
+					};
 
 				});
 			}
