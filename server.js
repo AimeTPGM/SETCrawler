@@ -5,14 +5,37 @@ var cheerio = require('cheerio');
 var async = require('async');
 var app     = express();
 
+/**
+1. ดู สินทรัพทั้งหมด (totalAsset) เทียบกับ หนี้สินทั้งหมด (totalDebt) กับส่วนของเจ้าของ (posh) 
+1.1 หนี้ < ส่วนของเจ้าของ = เสี่ยงน้อย
+1.2 หนี้ > ส่วนของเจ้าของ ให้ดูข้อ /
+2. ดู creditor กับ debt 
+2.1 creditor มาก โอเค มีอำนาจต่อรอง
+2.2 debt มาก ไม่โอเค
+3. ดู percent profit มากกว่า 10 คือกำไรดี
+4. ดู paidShare 
+4.1 คงที่โอเค ธุรกิจโตด้วยกำไร (posh ต้องโตขึ้นทุกปี 10%++ ถือว่าดี)
+4.2 ลดลง พอไหว แจกเงินคืน
+4.3 เพิ่มขึ้น อาจจะไม่โอเค 
+5. ดู paidShare เทียบ posh
+5.1 paidShare < posh ดี
+5.2 otherwise แย่
+6. ก่อนซื้อ ดู posh เทียบกับ ราคาในตลาด 
+6.1 posh > ราคาในตลาด = กิจการห่วย
+6.2 posh < ราคาในตลาด = ???
+7. ดู ROE (อารมณ์ดอกเบี้ยธนาคาร)
+7.1 15% เยี่ยมมาก
+7.2 10% ก็โอเคได้อยู่
+7.3 น้อยกว่า 3% ห่วยแตก ไปซื้อพันธบัตรดีกว่า
+7.4 ลองเอาเฉลี่ย 4 ปี หาร 4 ดู
+*/
+
+
 app.get('/symbol', function(req, res){
 	
 	var prefixList = [];
 	var first = "A", last = "Z";
 	var list = [];
-	var companyList = [];
-	var count =0;
-	var anotherList = [];
 	for (var i = first.charCodeAt(0); i <= last.charCodeAt(0); i++) {
 		prefixList.push(String.fromCharCode(i));
 	};
@@ -31,37 +54,34 @@ app.get('/symbol', function(req, res){
 				$('table').filter(function(){
 					var data = $(this);
 
-					
-					
-
-
-
 					var getAll = function (k){
 						var json = {
 							"symbol" : "",
 							"fullname" : "",
-							// "link" : "",
 							"market" : "",
+							"creditor": "",
+							"debt": "",
 							"info" : 
 				    			{
 				    				"totalAsset": [ "", "", "", "" ],
 				    				"totalDebt": [ "", "", "", "" ],
 				    				"partOfStakeholders": [ "", "", "", "" ],
-				    				"marketCap": [ "", "", "", "" ]
+				    				// "marketCap": [ "", "", "", "" ],
+				    				"totalIncome": [ "", "", "", "" ],
+				    				"totalProfit": [ "", "", "", "" ],
+				    				"ROE": [ "", "", "", "" ],
+				    				"percentProfit": [ "", "", "", "" ],
+				    				"paidShare": [ "", "", "", "" ]
 				    			}
 						}
 						json.symbol = data.children().eq(k).children().eq(0).text();
 						json.fullname = data.children().eq(k).children().eq(1).text();
 						json.market = data.children().eq(k).children().eq(2).text();
-						// json.link = "https://www.set.or.th/set/companyhighlight.do?symbol="+json.symbol+"&ssoPageId=5&language=th&country=TH";
-						if(!companyList.includes(json.symbol)){
-							companyList.push(json.symbol);
-						}
 						
-
+						
 						var getInfo = function(){
 							
-								url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+json.symbol+'&ssoPageId=5&language=th&country=TH'
+								url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+json.symbol+'&ssoPageId=5&language=th&country=TH';
 								
 								request(url, function(error, response, html){
 									if(!error){
@@ -72,51 +92,55 @@ app.get('/symbol', function(req, res){
 											var baseTotalAsset = scrape.children().children().eq(3).children();
 											var baseTotalDebt = scrape.children().children().eq(4).children();
 											var basePOSH = scrape.children().children().eq(5).children();
-											var baseMarketCap = scrape.children().children().eq(6).children();
+											var baseTotalIncome = scrape.children().children().eq(7).children();
+											var baseTotalProfit = scrape.children().children().eq(8).children();
+											var basePercentProfilt = scrape.children().children().eq(13).children();
+											var baseROE = scrape.children().children().eq(14).children();
+											var basePaidShare = scrape.children().children().eq(6).children();
 											var k = 0;
 											for (var j = 1; j < 5; j++) {
 												var tta = baseTotalAsset.eq(j).text().replace(/\s\s/, '');
-												var ttd = baseTotalDebt.eq(j).text().replace(/\s\s/, '');;
-												var posh = basePOSH.eq(j).text().replace(/\s\s/, '');;
-												var mc = baseMarketCap.eq(j).text().replace(/\s\s/, '');;
+												var ttd = baseTotalDebt.eq(j).text().replace(/\s\s/, '');
+												var posh = basePOSH.eq(j).text().replace(/\s\s/, '');
+												// var mc = baseMarketCap.eq(j).text().replace(/\s\s/, '');
+												var tti = baseTotalIncome.eq(j).text().replace(/\s\s/, '');
+												var ttp = baseTotalProfit.eq(j).text().replace(/\s\s/, '');
+												var pp = basePercentProfilt.eq(j).text().replace(/\s\s/, '');
+												var roe = baseROE.eq(j).text().replace(/\s\s/, '');
+												var ps = basePaidShare.eq(j).text().replace(/\s\s/, '');
 												json.info.totalAsset[k] = tta;
 												json.info.totalDebt[k] = ttd;
 												json.info.partOfStakeholders[k] = posh;
 												json.info.marketCap[k] = mc;
 												k++;
 											};
-											
-											
+
+											var getDebtAndCreditor = function(){
+												url = 'https://www.set.or.th/set/companyfinance.do?type=balance&symbol='+json.symbol+'&language=th&country=TH';
+
+											} // getDebtAndCreditor
 											
 											list.push(json)
 											var toWriteFile = {
 													"data" : list
 												}
 										    fs.writeFile('output.json', JSON.stringify(toWriteFile));
-									       
 										})
-										
-
 									}
 								})
-
-							
-							
-
 						} //getInfo		
 						var q = async.queue(function () {
-
-							getInfo();
-									
+							getInfo();			
 						}, 726);
 						q.push();
 			       	} // getAll
 
-
 			       	var p = async.queue(function (k) {
 
 							getAll(k);
-									
+							if(k == data.children().length-1){
+									console.log("======= done! ========")
+							}				
 					}, data.children().length-1);
 
 					for (var k = 1; k < data.children().length; k++) {
@@ -128,62 +152,20 @@ app.get('/symbol', function(req, res){
 		})
 	};
 
-	console.log("done!")
-	res.send('done!')
+	res.send('check at console')
+
 });
-
-app.get('/info', function(req,res){
-	var outputFile = fs.readFileSync('output.json');
-	var json = JSON.parse(outputFile);
-	var data = json.data;
-	var list = json.data;
-
-	var getInfo = function(i){
-		// console.log(i)
-		url = 'https://www.set.or.th/set/companyhighlight.do?symbol='+data[i].symbol+'&ssoPageId=5&language=th&country=TH'
-		request(url, function(error, response, html){
-			if(!error){
-				console.log(i)
-				console.log(data[i].symbol)
-				var $ = cheerio.load(html);
-				$('table').filter(function(){
-					var scrape = $(this);
-					var base = scrape.children().children().eq(3).children();
-					var k = 0;
-					for (var j = 1; j < 5; j++) {
-						data[i].info.totalAsset[k] = base.eq(j).text();
-						k++;
-						
-					};
-				})
-				
-
-			}
-		})
-
-	}
-
-	var q = async.queue(function (i) {
-			getInfo(i);
-	}, 726);
-	for (var i = 0; i < data.length; i++) {
-			// console.log(i)
-			q.push(i);
-	};
-	console.log('done');
-	res.send();
-})
 
 app.get('/read', function(req, res){
 	var outputFile = fs.readFileSync('output.json');
 	var outputTOJSON = JSON.parse(outputFile);
-	console.log(outputTOJSON)
-	res.send();
+	console.log('get read file')	
+	res.send(outputTOJSON);
 
 })
 
 app.get('/scrape', function(req, res){
-
+	console.log('scarping A')
 	url = 'https://www.set.or.th/set/companyhighlight.do?symbol=A&ssoPageId=5&language=th&country=TH';
 
 	request(url, function(error, response, html){
@@ -191,16 +173,11 @@ app.get('/scrape', function(req, res){
 	    var $ = cheerio.load(html);
 		$('table').filter(function(){
 	        var data = $(this);
+	        var base = data.children().children();
 	        for (var i = 0; i < data.children().children().length; i++) {
 	        	console.log(i)
-	        	console.log(data.children().children().eq(i).text());
+	        	console.log(data.children().children().eq(i).text())
 	        };
-	        var base = data.children().children().eq(3).children();
-	        console.log('totalAsset')
-	        console.log(base.eq(0).text())
-	       	console.log(base.eq(1).text())
-	       	console.log(base.eq(2).text())
-	       	console.log(base.eq(3).text())
 	       	
 
 	    })
@@ -210,6 +187,33 @@ app.get('/scrape', function(req, res){
 	res.send('Check your console!')
 
 	}) ;
+})
+
+app.get('/debt', function(req, res){
+	console.log('debt A')
+	url = 'https://www.set.or.th/set/companyfinance.do?type=balance&symbol=A&language=th&country=TH';
+
+	request(url, function(error, response, html){
+	    if(!error){
+	    var $ = cheerio.load(html);
+		$('table.table.table-hover.table-info').filter(function(){
+	        var data = $(this);
+	        var base = data.children().children();
+	        console.log(data.text());
+	        for (var i = 0; i < data.children().children().length; i++) {
+	        	console.log(i)
+	        	console.log(data.children().children().eq(i).text())
+	        };
+	       	
+
+	    })
+
+		
+	}
+	
+
+	}) ;
+	res.send('Check your console!')
 })
 
 app.listen('8081')
