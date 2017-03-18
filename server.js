@@ -117,7 +117,9 @@ app.get('/symbol', function(req, res){
 
 											var getDebtAndCreditor = function(){
 												url = 'https://www.set.or.th/set/companyfinance.do?type=balance&symbol='+json.symbol+'&language=th&country=TH';
+												request(url, function(error, response, html){
 
+												})
 											} // getDebtAndCreditor
 											
 											list.push(json)
