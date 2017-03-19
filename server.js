@@ -5,31 +5,29 @@ var cheerio = require('cheerio');
 var async = require('async');
 var app     = express();
 
-/**
-1. ดู สินทรัพทั้งหมด (totalAsset) เทียบกับ หนี้สินทั้งหมด (totalDebt) กับส่วนของเจ้าของ (posh) 
-1.1 หนี้ < ส่วนของเจ้าของ = เสี่ยงน้อย
-1.2 หนี้ > ส่วนของเจ้าของ ให้ดูข้อ /
-2. ดู creditor กับ debt => ต้องดูเอง format ไม่เหมือนกัน
-2.1 creditor มาก โอเค มีอำนาจต่อรอง 
-2.2 debt มาก ไม่โอเค
-3. ดู percent profit มากกว่า 10 คือกำไรดี
-4. ดู paidShare 
-4.1 คงที่โอเค ธุรกิจโตด้วยกำไร (posh ต้องโตขึ้นทุกปี 10%++ ถือว่าดี)
-4.2 ลดลง พอไหว แจกเงินคืน
-4.3 เพิ่มขึ้น อาจจะไม่โอเค 
-5. ดู paidShare เทียบ posh
-5.1 paidShare < posh ดี
-5.2 otherwise แย่
-6. ก่อนซื้อ ดู posh เทียบกับ ราคาในตลาด 
-6.1 posh > ราคาในตลาด = กิจการห่วย
-6.2 posh < ราคาในตลาด = ???
-7. ดู ROE (อารมณ์ดอกเบี้ยธนาคาร)
-7.1 15% เยี่ยมมาก
-7.2 10% ก็โอเคได้อยู่
-7.3 น้อยกว่า 3% ห่วยแตก ไปซื้อพันธบัตรดีกว่า
-7.4 ลองเอาเฉลี่ย 4 ปี หาร 4 ดู
-*/
+app.use(function (req, res, next) {
 
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+
+/**
+* เดี๋ยวทำ creditor และ debt เพิ่ม
+* ทำ group ของสินค้านั้นๆเพิ่มด้วย
+**/
 
 app.get('/symbol', function(req, res){
 	
