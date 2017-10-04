@@ -15,7 +15,7 @@ P.S. there is no suggestion for put an investment on a particular stock accordin
 
 ป.ล. ภาษาอังกฤษผิดๆไปบ้าง เพราะไม่รู้ศัพท์เฉพาะของภาษาอังกฤษค่ะ
 
-## JSON Structure
+# JSON Structure
 
 ``` 
 { "data" :
@@ -38,7 +38,7 @@ P.S. there is no suggestion for put an investment on a particular stock accordin
 }
 ```
 
-## How to install วิธีลง
+# Installation วิธีลง
 
 1. Open a terminal program then clone this repository to your computer
 
@@ -68,9 +68,9 @@ it will show Magic happens on port 8081
 
 จะขึ้นว่า: Magic happens on port 8081
 
-## Usage วิธีใช้
+# Usage วิธีใช้
 
-### English
+## English
 
 1. Open a web browser
 
@@ -84,7 +84,7 @@ it will show Magic happens on port 8081
 
 *** the output format is provided above
 
-### Thai
+## Thai
 
 1. เปิดเว็บบราวเซอร์ขึ้นมา 
 
@@ -98,4 +98,4 @@ it will show Magic happens on port 8081
 
 *** ฟอร์แม็ตของ output บอกไว้ด้านบนจ้า
 
-### Enjoy!
+# Enjoy!
