@@ -38,7 +38,7 @@ P.S. there is no suggestion for put an investment on a particular stock accordin
 }
 ```
 
-### How to install วิธีลง
+## How to install วิธีลง
 
 Open a terminal program then clone this repository to your computer
 
@@ -50,7 +50,7 @@ Change directory to the cloned project
 
 เปลี่ยนไดเร็กทอรี่ไปที่ที่โคลนโปรเจ็คไว้
 
-``` cd ~/your/path/to/project/SETCrawler
+``` cd ~/your/path/to/project/SETCrawler ```
 
 install npm
 
@@ -68,9 +68,9 @@ it will show Magic happens on port 8081
 
 จะขึ้นว่า: Magic happens on port 8081
 
-### Usage วิธีใช้
+## Usage วิธีใช้
 
-## English
+### English
 
 1. Open a web browser
 
@@ -84,7 +84,7 @@ it will show Magic happens on port 8081
 
 *** the output format is provided above
 
-## Thai
+### Thai
 
 1. เปิดเว็บบราวเซอร์ขึ้นมา 
 
