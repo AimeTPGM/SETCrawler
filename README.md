@@ -40,25 +40,25 @@ P.S. there is no suggestion for put an investment on a particular stock accordin
 
 ## How to install วิธีลง
 
-Open a terminal program then clone this repository to your computer
+1. Open a terminal program then clone this repository to your computer
 
 เปิดโปรแกรมเทอร์มินอล (เช่น Terminal ในแมค หรือ cmd ในวินโดว์) แล้วโคลนโปรเจ็คนี้ลงบนคอม
 
 ``` git clone https://github.com/AimeTPGM/SETCrawler.git ```
 
-Change directory to the cloned project
+2. Change directory to the cloned project
 
 เปลี่ยนไดเร็กทอรี่ไปที่ที่โคลนโปรเจ็คไว้
 
 ``` cd ~/your/path/to/project/SETCrawler ```
 
-install npm
+3. install npm
 
 สั่งอินสตอล์ npm
 
 ``` npm install ``` 
 
-run the server
+4. run the server
 
 รันเซิร์ฟเวอร์
 
