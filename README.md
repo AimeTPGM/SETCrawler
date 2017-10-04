@@ -37,3 +37,65 @@ P.S. there is no suggestion for put an investment on a particular stock accordin
           }]
 }
 ```
+
+### How to install วิธีลง
+
+Open a terminal program then clone this repository to your computer
+
+เปิดโปรแกรมเทอร์มินอล (เช่น Terminal ในแมค หรือ cmd ในวินโดว์) แล้วโคลนโปรเจ็คนี้ลงบนคอม
+
+``` git clone https://github.com/AimeTPGM/SETCrawler.git ```
+
+Change directory to the cloned project
+
+เปลี่ยนไดเร็กทอรี่ไปที่ที่โคลนโปรเจ็คไว้
+
+``` cd ~/your/path/to/project/SETCrawler
+
+install npm
+
+สั่งอินสตอล์ npm
+
+``` npm install ``` 
+
+run the server
+
+รันเซิร์ฟเวอร์
+
+``` node server.js ``` 
+
+it will show Magic happens on port 8081
+
+จะขึ้นว่า: Magic happens on port 8081
+
+### Usage วิธีใช้
+
+## English
+
+1. Open a web browser
+
+2. Open this url http://localhost:8081/symbol
+
+3. Back to your terminal, you will see it's crawling the data from set.or.th
+
+4. Wait until it go through all the pages and stop scrolling
+
+5. Check output.json file. That's the latest data from SET
+
+*** the output format is provided above
+
+## Thai
+
+1. เปิดเว็บบราวเซอร์ขึ้นมา 
+
+2. เปิดเว็บนี้ >> http://localhost:8081/symbol
+
+3. กลับมาดูที่ Terminal จะเห็นว่าเซิร์ฟเวอร์กำลังดึงข้อมูลจาก set.or.th
+
+4. รอจนกว่าเทอร์มินอลจะหยุดเลื่อนสัญลักษณ์ต่างๆ จนนิ่งสนิท
+
+5. เช็ค output.json จะได้ดาต้าล่าสุดจากเว็บ SET ในขณะนั้น 
+
+*** ฟอร์แม็ตของ output บอกไว้ด้านบนจ้า
+
+### Enjoy!
