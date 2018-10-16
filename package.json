@@ -8,5 +8,10 @@
     "express"    : "latest",
     "request"    : "latest",
     "cheerio"    : "latest"
+  },
+  "prettier": {
+    "semi": false,
+    "tab-width": 2,
+    "single-quote": true
   }
 }
